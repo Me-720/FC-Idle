@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Football Club Idle - Custom Kits & Logos</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a2e;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+            max-width: 1200px;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+        .card {
+            background-color: #16213e;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            flex: 1;
+            min-width: 320px;
+        }
+        h1, h2, h3 {
+            color: #00fff5;
+            margin-top: 0;
+        }
+        .stat-box {
+            background: #0f3460;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .stat-value {
+            font-size: 22px;
+            font-weight: bold;
+            color: #e94560;
+        }
+        button {
+            background-color: #e94560;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin: 6px 0;
+            width: 100%;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button.match-btn {
+            background-color: #2e8b57;
+            font-size: 16px;
+            padding: 12px;
+        }
+        button.match-btn:hover {
+            background-color: #3cb371;
+        }
+        button.lootbox-btn {
+            background-color: #8a2be2;
+            font-size: 15px;
+        }
+        button.lootbox-btn:hover {
+            background-color: #9932cc;
+        }
+        button:hover {
+            background-color: #ff6b81;
+        }
+        button:disabled {
+            background-color: #4a4e69;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .upgrade-container {
+            max-height: 180px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        .match-screen {
+            background: #0f3460;
+            border-radius: 8px;
+            padding: 15px;
+            min-height: 220px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        /* Animated Pitch Visualizer */
+        .pitch-container {
+            background: #1e5128;
+            border: 2px solid #4e9f3d;
+            border-radius: 6px;
+            height: 70px;
+            margin: 10px 0;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            overflow: hidden;
+        }
+        .pitch-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .pitch-circle {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+        }
+        .ball-icon {
+            font-size: 18px;
+            position: absolute;
+            top: 35%;
+            left: 50%;
+            transition: left 0.4s ease-in-out, transform 0.2s;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+        }
+        
+        /* Goal Celebration Animation & Overlay */
+        .goal-banner {
+            position: absolute;
+            top: -100px;
+            left: 0;
+            right: 0;
+            background: rgba(0, 255, 245, 0.95);
+            color: #1a1a2e;
+            font-size: 28px;
+            font-weight: 900;
+            text-align: center;
+            padding: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            z-index: 10;
+            transition: top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 30px #00fff5;
+        }
+        .goal-banner.show {
+            top: 30%;
+        }
+
+        .goal-celebration {
+            animation: goalFlash 0.8s ease-in-out infinite alternate;
+        }
+        @keyframes goalFlash {
+            0% { transform: scale(1); box-shadow: 0 0 0px #00fff5; }
+            100% { transform: scale(1.03); box-shadow: 0 0 35px #00fff5; }
+        }
+
+        .scoreboard {
+            font-size: 26px;
+            font-weight: bold;
+            text-align: center;
+            color: #00fff5;
+            margin: 5px 0;
+        }
+        .ticker {
+            background: #16213e;
+            height: 80px;
+            overflow-y: auto;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #a2a8d3;
+        }
+        .ticker-line {
+            margin-bottom: 4px;
+        }
+        .roster-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 140px;
+            overflow-y: auto;
+        }
+        .roster-item {
+            background: #0f3460;
+            padding: 6px 10px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+        .customizer {
+            background: #0f3460;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+        }
+        .color-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 12px;
+        }
+        .color-inputs div {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        input[type="color"] {
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            background: none;
+        }
+        input[type="text"], select {
+            background: #16213e;
+            border: 1px solid #00fff5;
+            color: #fff;
+            padding: 6px;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .logo-preview {
+            width: 60px;
+            height: 70px;
+            clip-path: polygon(0% 0%, 100% 0%, 100% 75%, 50% 100%, 0% 75%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            border: 2px solid #fff;
+        }
+        .sell-btn {
+            background: #e94560;
+            color: #fff;
+            border: none;
+            padding: 2px 6px;
+            font-size: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: auto;
+            margin: 0;
+        }
+        
+        /* Leaderboard Table Styles */
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+        .leaderboard-table th, .leaderboard-table td {
+            padding: 6px;
+            text-align: left;
+            border-bottom: 1px solid #0f3460;
+        }
+        .leaderboard-table th {
+            color: #00fff5;
+            background: #0f3460;
+        }
+        .user-row {
+            background: rgba(0, 255, 245, 0.15);
+            font-weight: bold;
+        }
+
+        /* Trophy Cabinet Grid Styles */
+        .trophy-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .trophy-card {
+            background: #0f3460;
+            border: 2px solid #16213e;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .trophy-card.unlocked {
+            border-color: #ffd700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+        }
+        .trophy-card.locked {
+            opacity: 0.5;
+            filter: grayscale(100%);
+        }
+        .trophy-icon {
+            font-size: 32px;
+            margin-bottom: 4px;
+        }
+        .trophy-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #00fff5;
+        }
+        .trophy-sub {
+            font-size: 10px;
+            color: #a2a8d3;
+            margin-top: 4px;
+        }
+
+        /* Rarity Text Colors */
+        .rarity-common { color: #a2a8d3; }
+        .rarity-rare { color: #00fff5; font-weight: bold; }
+        .rarity-epic { color: #a020f0; font-weight: bold; }
+        .rarity-legendary { color: #ffd700; font-weight: bold; text-shadow: 0 0 5px #ffd700; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <h1>⚽ Club HQ</h1>
+
+        <div style="margin-bottom: 10px;">
+            <label style="font-size: 12px; color: #a2a8d3;">Club Name:</label>
+            <input type="text" id="club-name-input" value="Your FC" oninput="updateClubName()">
+        </div>
+
+        <div class="customizer">
+            <div id="club-logo" class="logo-preview">👕</div>
+            <div class="color-inputs">
+                <div>
+                    <label for="primary-color">Main Color:</label>
+                    <input type="color" id="primary-color" value="#e94560" onchange="updateColors()">
+                </div>
+                <div>
+                    <label for="secondary-color">Accent Color:</label>
+                    <input type="color" id="secondary-color" value="#00fff5" onchange="updateColors()">
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-box">
+            <div style="font-size: 12px; color: #a2a8d3;">Division Status</div>
+            <div style="font-size: 16px; font-weight: bold; color: #00fff5;" id="division-tag">Division 4 (Bronze)</div>
+            <div style="font-size: 12px; color: #a2a8d3; margin-top: 6px;">Club Treasury</div>
+            <div class="stat-value" id="money">$100</div>
+            <div style="font-size: 12px; color: #a2a8d3; margin-top: 4px;">Passive Income: $<span id="income">0</span>/sec</div>
+            <div style="font-size: 12px; color: #a2a8d3;">Ticket Price: $<span id="click-val">5</span> per click</div>
+            <div style="font-size: 12px; color: #a2a8d3;">Base OVR: <span id="team-rating" style="color: #00fff5;">50</span> | Match OVR: <span id="effective-rating" style="color: #ffd700;">50</span></div>
+            <div style="font-size: 12px; color: #a2a8d3;">Scout Luck Multiplier: <span id="luck-stat" style="color: #ffd700;">1.0x</span></div>
+        </div>
+
+        <button onclick="clickIncome()" id="ticket-btn">Sell Match Tickets (+$5)</button>
+        <button id="pack-btn" class="lootbox-btn" onclick="openPlayerPack()">🎁 Open Player Pack ($50)</button>
+
+        <h3>Commercial Upgrades</h3>
+        <div class="upgrade-container" id="upgrades-list"></div>
+    </div>
+
+    <div class="card">
+        <h2>🏟️ Match & Standings</h2>
+
+        <div style="margin-bottom: 10px;">
+            <label style="font-size: 12px; color: #a2a8d3;">Match Tactics:</label>
+            <select id="tactics-select" onchange="updateTactics()">
+                <option value="balanced">Balanced (Standard)</option>
+                <option value="attacking">Attacking (+Goals, +Risk)</option>
+                <option value="defensive">Park the Bus (+Defense, -Goals)</option>
+            </select>
+        </div>
+        
+        <button id="start-match-btn" class="match-btn" onclick="startMatch()">▶️ Play Match</button>
+
+        <div class="match-screen" id="match-screen-box">
+            <div id="goal-banner" class="goal-banner">⚽ GOAL! ⚽</div>
+            <div>
+                <div style="text-align: center; color: #a2a8d3; font-size: 13px;" id="match-status">Ready for Match</div>
+                <div class="scoreboard">
+                    <span id="club-name-tag" style="color: #e94560;">Your FC</span> 
+                    <span id="score-home">0</span> - <span id="score-away">0</span> 
+                    <span id="rival-name-tag">Rivals</span>
+                </div>
+                
+                <div class="pitch-container">
+                    <div class="pitch-line"></div>
+                    <div class="pitch-circle"></div>
+                    <div style="font-size: 11px; font-weight: bold; color:#00fff5;">[HOME]</div>
+                    <div id="ball" class="ball-icon">⚽</div>
+                    <div style="font-size: 11px; font-weight: bold; color:#e94560;">[AWAY]</div>
+                </div>
+
+                <div style="text-align: center; font-size: 12px; color: #a2a8d3;">
+                    Minute: <span id="match-time">0</span>' | Rival Rating: <span id="rival-rating-tag" style="color:#e94560;">45</span>
+                </div>
+            </div>
+
+            <div class="ticker" id="ticker">
+                <div class="ticker-line">Press "Play Match" to begin simulation!</div>
+            </div>
+        </div>
+        
+        <h3 style="margin-top: 15px;">Squad Roster (<span id="squad-count">0</span>/<span id="max-squad-tag">11</span>)</h3>
+        <div class="roster-list" id="roster"></div>
+
+        <h3 style="margin-top: 15px;">🏆 League Table (<span id="table-div-name">Division 4</span>)</h3>
+        <table class="leaderboard-table">
+            <thead>
+                <tr>
+                    <th>Pos</th>
+                    <th>Club</th>
+                    <th>Pts</th>
+                    <th>OVR</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard-body"></tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>🏆 Trophy Room</h2>
+        <div style="font-size: 12px; color: #a2a8d3; margin-bottom: 10px;">
+            Win 1st place in a division to earn its trophy. You need the division's trophy to promote!
+        </div>
+
+        <div class="trophy-grid" id="trophy-cabinet"></div>
+    </div>
+</div>
+
+<script>
+    // Customization State
+    let primaryColor = "#e94560";
+    let secondaryColor = "#00fff5";
+    let clubName = "Your FC";
+
+    // Game State
+    let money = 100;
+    let incomePerSecond = 0;
+    let clickValue = 5;
+    let currentDivision = 4;
+    let selectedTactic = "balanced";
+    let ticketCooldownActive = false;
+
+    // Roster Size Limits
+    const MIN_SQUAD_SIZE = 3;
+    const MAX_SQUAD_SIZE = 11;
+
+    // Division Info & Trophies Requirements
+    const divisions = {
+        4: { name: "Division 4 (Bronze)", rivalRatingMin: 35, rivalRatingMax: 50, promoCost: 300, promoRatingReq: 50, rewardMult: 2, trophyId: 4 },
+        3: { name: "Division 3 (Silver)", rivalRatingMin: 50, rivalRatingMax: 65, promoCost: 1500, promoRatingReq: 62, rewardMult: 5, trophyId: 3 },
+        2: { name: "Division 2 (Gold)", rivalRatingMin: 65, rivalRatingMax: 80, promoCost: 7500, promoRatingReq: 75, rewardMult: 12, trophyId: 2 },
+        1: { name: "Division 1 (Premier)", rivalRatingMin: 80, rivalRatingMax: 95, promoCost: Infinity, promoRatingReq: 99, rewardMult: 30, trophyId: 1 }
+    };
+
+    // Trophy Data
+    const trophyInfo = {
+        4: { title: "Bronze County Shield", icon: "🥉", divName: "Division 4", desc: "Awarded for 1st place in Bronze Division." },
+        3: { title: "Silver Regional Cup", icon: "🥈", divName: "Division 3", desc: "Awarded for 1st place in Silver Division." },
+        2: { title: "Gold National Trophy", icon: "🥇", divName: "Division 2", desc: "Awarded for 1st place in Gold Division." },
+        1: { title: "Champions Premier Crown", icon: "🏆", divName: "Division 1", desc: "Awarded for 1st place in Premier Division." }
+    };
+
+    let userTrophies = {
+        4: false,
+        3: false,
+        2: false,
+        1: false
+    };
+
+    let squad = [
+        { id: 1, name: "John Smith", position: "FW", rating: 55, rarity: "Common" },
+        { id: 2, name: "Alex Rivera", position: "MF", rating: 52, rarity: "Common" },
+        { id: 3, name: "Sam Lee", position: "DF", rating: 50, rarity: "Common" }
+    ];
+
+    const upgrades = {
+        scoutNetwork: { name: "🔎 Scouting Network (Luck Boost)", cost: 50, income: 0, clickBoost: 0, luckBoost: 0.25, count: 0 },
+        foodStands: { name: "🍿 Snack & Food Stands", cost: 20, income: 5, clickBoost: 2, luckBoost: 0, count: 0 },
+        stadium: { name: "🏟️ Stadium Expansion", cost: 80, income: 25, clickBoost: 5, luckBoost: 0, count: 0 },
+        merchShop: { name: "🏪 Official Club Store", cost: 350, income: 90, clickBoost: 15, luckBoost: 0, count: 0 },
+        sponsors: { name: "👕 Shirt Sponsorship Deal", cost: 1200, income: 350, clickBoost: 40, luckBoost: 0, count: 0 },
+        tvRights: { name: "📺 Global TV Broadcast", cost: 5000, income: 1500, clickBoost: 120, luckBoost: 0, count: 0 }
+    };
+
+    let packCost = 50;
+
+    // Match State
+    let matchTime = 0;
+    let homeScore = 0;
+    let awayScore = 0;
+    let rivalRating = 45;
+    let rivalName = "Rivals";
+    let matchActive = false;
+    let matchInterval = null;
+
+    // Leaderboard State
+    let leaderboard = [];
+    let userPoints = 0;
+
+    const playerNames = ["Lucas", "Mateo", "Oliver", "Ethan", "Leo", "Gabriel", "Julian", "Bruno", "Hugo", "Oscar", "Cristiano", "Lionel", "Kylian", "Erling", "Neymar"];
+    const surnames = ["Silva", "Santos", "Garcia", "Jones", "Mueller", "Kim", "Rossi", "Dubois", "Bakker", "Novak", "Ronaldo", "Messi", "Mbappe", "Haaland"];
+    const rivalPrefixes = ["FC", "Real", "United", "City", "Athletic", "Sporting", "Inter", "AC"];
+    const rivalCities = ["Metro", "Capital", "Iron", "Coast", "Apex", "Valley", "Rover", "Dynamos"];
+
+    function updateClubName() {
+        const inputName = document.getElementById('club-name-input').value;
+        clubName = inputName.trim() !== '' ? inputName : 'Your FC';
+        document.getElementById('club-name-tag').innerText = clubName;
+        updateLeaderboard();
+    }
+
+    function updateColors() {
+        primaryColor = document.getElementById('primary-color').value;
+        secondaryColor = document.getElementById('secondary-color').value;
+
+        const logo = document.getElementById('club-logo');
+        logo.style.background = `linear-gradient(135deg, ${primaryColor} 50%, ${secondaryColor} 50%)`;
+        document.getElementById('club-name-tag').style.color = primaryColor;
+    }
+
+    function updateTactics() {
+        selectedTactic = document.getElementById('tactics-select').value;
+    }
+
+    function getLuckMultiplier() {
+        return 1 + (upgrades.scoutNetwork.count * upgrades.scoutNetwork.luckBoost);
+    }
+
+    function getBaseTeamRating() {
+        if (squad.length === 0) return 30;
+        let sum = squad.reduce((acc, p) => acc + p.rating, 0);
+        return Math.round(sum / squad.length);
+    }
+
+    function getEffectiveTeamRating() {
+        let base = getBaseTeamRating();
+        let penaltyMultiplier = squad.length / MAX_SQUAD_SIZE;
+        return Math.round(base * penaltyMultiplier);
+    }
+
+    function recalculateStats() {
+        let totalIncome = 0;
+        let totalClick = 5;
+
+        for (let key in upgrades) {
+            let up = upgrades[key];
+            totalIncome += up.income * up.count;
+            totalClick += up.clickBoost * up.count;
+        }
+
+        incomePerSecond = totalIncome;
+        clickValue = totalClick;
+    }
+
+    function clickIncome() {
+        if (ticketCooldownActive) return;
+
+        money += clickValue;
+        ticketCooldownActive = true;
+        updateUI();
+
+        setTimeout(() => {
+            ticketCooldownActive = false;
+            updateUI();
+        }, 500);
+    }
+
+    function buyUpgrade(key) {
+        let up = upgrades[key];
+        if (money >= up.cost) {
+            money -= up.cost;
+            up.count++;
+            up.cost = Math.floor(up.cost * 1.18);
+            recalculateStats();
+            updateUI();
+        }
+    }
+
+    function openPlayerPack() {
+        if (money < packCost) return;
+        if (squad.length >= MAX_SQUAD_SIZE) {
+            logTicker(`⚠️ Squad limit reached! Sell a player before buying new packs (Max: ${MAX_SQUAD_SIZE}).`);
+            return;
+        }
+
+        money -= packCost;
+        packCost = Math.floor(packCost * 1.15);
+
+        let luck = getLuckMultiplier();
+        let roll = Math.random() * 100 * luck;
+
+        let rarity = "Common";
+        let ratingBonus = 0;
+
+        if (roll >= 150) {
+            rarity = "Legendary";
+            ratingBonus = 30;
+        } else if (roll >= 90) {
+            rarity = "Epic";
+            ratingBonus = 20;
+        } else if (roll >= 45) {
+            rarity = "Rare";
+            ratingBonus = 10;
+        } else {
+            rarity = "Common";
+            ratingBonus = 0;
+        }
+
+        let baseRating = Math.floor(Math.random() * 10) + 40 + ((5 - currentDivision) * 5);
+        let finalRating = Math.min(99, baseRating + ratingBonus);
+        
+        let name = playerNames[Math.floor(Math.random() * playerNames.length)] + " " + surnames[Math.floor(Math.random() * surnames.length)];
+        let pos = ["FW", "MF", "DF"][Math.floor(Math.random() * 3)];
+
+        squad.push({ id: Date.now(), name, position: pos, rating: finalRating, rarity });
+        
+        logTicker(`🎁 PACK OPENED! You pulled ${rarity.toUpperCase()} ${name} (${pos}, OVR: ${finalRating})!`);
+        updateUI();
+    }
+
+    function sellPlayer(id) {
+        if (squad.length <= MIN_SQUAD_SIZE) {
+            logTicker(`⚠️ Cannot sell! Minimum squad size is ${MIN_SQUAD_SIZE} players.`);
+            return;
+        }
+        const index = squad.findIndex(p => p.id === id);
+        if (index !== -1) {
+            let soldPlayer = squad[index];
+            let value = soldPlayer.rating * 20;
+            money += value;
+            squad.splice(index, 1);
+            updateUI();
+            logTicker(` Sold ${soldPlayer.name} for $${value}`);
+        }
+    }
+
+    function checkPromotion() {
+        let div = divisions[currentDivision];
+        let hasTrophy = userTrophies[currentDivision];
+
+        if (!hasTrophy) {
+            logTicker(`❌ Cannot promote! You must win 1st place and earn the ${trophyInfo[currentDivision].title} first!`);
+            return;
+        }
+
+        if (currentDivision > 1 && getBaseTeamRating() >= div.promoRatingReq && money >= div.promoCost) {
+            money -= div.promoCost;
+            currentDivision--;
+            userPoints = 0;
+            logTicker(`🎉 PROMOTED! Welcome to ${divisions[currentDivision].name}!`);
+            generateLeaderboard();
+            updateUI();
+        }
+    }
+
+    function generateLeaderboard() {
+        let div = divisions[currentDivision];
+        leaderboard = [];
+        
+        for (let i = 0; i < 4; i++) {
+            let name = rivalPrefixes[Math.floor(Math.random() * rivalPrefixes.length)] + " " + rivalCities[Math.floor(Math.random() * rivalCities.length)];
+            let rating = Math.floor(Math.random() * (div.rivalRatingMax - div.rivalRatingMin + 1)) + div.rivalRatingMin;
+            let pts = Math.floor(Math.random() * 12) + 3;
+            leaderboard.push({ name, rating, pts, isUser: false });
+        }
+        
+        updateLeaderboard();
+    }
+
+    function updateLeaderboard() {
+        let userEntry = leaderboard.find(c => c.isUser);
+        if (!userEntry) {
+            userEntry = { name: clubName, rating: getEffectiveTeamRating(), pts: userPoints, isUser: true };
+            leaderboard.push(userEntry);
+        } else {
+            userEntry.name = clubName;
+            userEntry.rating = getEffectiveTeamRating();
+            userEntry.pts = userPoints;
+        }
+
+        leaderboard.sort((a, b) => b.pts - a.pts);
+
+        // Check if user reached 1st place and award trophy
+        if (leaderboard[0] && leaderboard[0].isUser) {
+            if (!userTrophies[currentDivision]) {
+                userTrophies[currentDivision] = true;
+                let trophy = trophyInfo[currentDivision];
+                logTicker(`🏆 CONGRATULATIONS! You reached 1st Place and unlocked the ${trophy.icon} ${trophy.title}!`);
+            }
+        }
+
+        const tbody = document.getElementById('leaderboard-body');
+        tbody.innerHTML = '';
+        
+        leaderboard.forEach((club, idx) => {
+            let tr = document.createElement('tr');
+            if (club.isUser) tr.className = 'user-row';
+            tr.innerHTML = `
+                <td>#${idx + 1}</td>
+                <td>${club.isUser ? '⭐ ' + club.name : club.name}</td>
+                <td><strong>${club.pts}</strong></td>
+                <td>${club.rating}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        document.getElementById('table-div-name').innerText = divisions[currentDivision].name;
+        renderTrophyCabinet();
+    }
+
+    function renderTrophyCabinet() {
+        const cabinet = document.getElementById('trophy-cabinet');
+        cabinet.innerHTML = '';
+
+        [4, 3, 2, 1].forEach(divId => {
+            let trophy = trophyInfo[divId];
+            let isUnlocked = userTrophies[divId];
+
+            let card = document.createElement('div');
+            card.className = `trophy-card ${isUnlocked ? 'unlocked' : 'locked'}`;
+            card.innerHTML = `
+                <div class="trophy-icon">${isUnlocked ? trophy.icon : '🔒'}</div>
+                <div class="trophy-title">${trophy.title}</div>
+                <div style="font-size:11px; color:#00fff5;">${trophy.divName}</div>
+                <div class="trophy-sub">${isUnlocked ? '✅ EARNED (1st Place)' : trophy.desc}</div>
+            `;
+            cabinet.appendChild(card);
+        });
+    }
+
+    function generateRival() {
+        let div = divisions[currentDivision];
+        rivalName = rivalPrefixes[Math.floor(Math.random() * rivalPrefixes.length)] + " " + rivalCities[Math.floor(Math.random() * rivalCities.length)];
+        rivalRating = Math.floor(Math.random() * (div.rivalRatingMax - div.rivalRatingMin + 1)) + div.rivalRatingMin;
+        
+        document.getElementById('rival-name-tag').innerText = rivalName;
+        document.getElementById('rival-rating-tag').innerText = rivalRating;
+    }
+
+    function logTicker(text) {
+        const ticker = document.getElementById('ticker');
+        const line = document.createElement('div');
+        line.className = 'ticker-line';
+        line.innerText = text;
+        ticker.appendChild(line);
+        ticker.scrollTop = ticker.scrollHeight;
+    }
+
+    function triggerGoalCelebration() {
+        const matchBox = document.getElementById('match-screen-box');
+        const banner = document.getElementById('goal-banner');
+
+        matchBox.classList.add('goal-celebration');
+        banner.classList.add('show');
+
+        setTimeout(() => {
+            matchBox.classList.remove('goal-celebration');
+            banner.classList.remove('show');
+        }, 1200);
+    }
+
+    function startMatch() {
+        if (matchActive) return;
+
+        generateRival();
+        matchTime = 0;
+        homeScore = 0;
+        awayScore = 0;
+        matchActive = true;
+        
+        document.getElementById('ticker').innerHTML = '';
+        document.getElementById('match-status').innerText = 'Match In Progress';
+        
+        let effectiveRating = getEffectiveTeamRating();
+        if (squad.length < MAX_SQUAD_SIZE) {
+            logTicker(`⚠️ WARNING: Incomplete Squad (${squad.length}/11)! Match OVR heavily reduced to ${effectiveRating}.`);
+        }
+        
+        logTicker(`⚽ Kick off vs ${rivalName}! Tactics: ${selectedTactic.toUpperCase()}`);
+        updateUI();
+
+        let myGoalChance = (effectiveRating / (effectiveRating + rivalRating)) * 12;
+        let rivalGoalChance = (rivalRating / (effectiveRating + rivalRating)) * 12;
+
+        if (selectedTactic === 'attacking') {
+            myGoalChance *= 1.4;
+            rivalGoalChance *= 1.2;
+        } else if (selectedTactic === 'defensive') {
+            myGoalChance *= 0.7;
+            rivalGoalChance *= 0.6;
+        }
+
+        const ball = document.getElementById('ball');
+
+        matchInterval = setInterval(() => {
+            matchTime += 3;
+
+            let ballPos = 50 + (Math.random() * 40 - 20);
+            
+            let chance = Math.random() * 100;
+            if (chance < myGoalChance) {
+                let scorer = squad[Math.floor(Math.random() * squad.length)];
+                homeScore++;
+                ballPos = 85;
+                triggerGoalCelebration();
+                logTicker(`⚽ GOAL! ${scorer ? scorer.name : 'Your team'} scores! (${matchTime}')`);
+            } else if (chance > (100 - rivalGoalChance)) {
+                awayScore++;
+                ballPos = 15;
+                logTicker(`🚨 ${rivalName} scores! (${matchTime}')`);
+            }
+
+            ball.style.left = ballPos + '%';
+
+            if (matchTime >= 90) {
+                clearInterval(matchInterval);
+                matchActive = false;
+                ball.style.left = '50%';
+                
+                let divMult = divisions[currentDivision].rewardMult;
+                let isWin = homeScore > awayScore;
+                let isDraw = homeScore === awayScore;
+
+                if (isWin) userPoints += 3;
+                else if (isDraw) userPoints += 1;
+
+                let matchReward = (100 + (homeScore * 75) + (isWin ? 250 : 0) + (incomePerSecond * 5)) * divMult;
+                money += matchReward;
+                
+                document.getElementById('match-status').innerText = 'Match Finished';
+                logTicker(`🏁 Match Ended! Score: ${homeScore}-${awayScore}. Reward: +$${Math.floor(matchReward)}`);
+                updateLeaderboard();
+            }
+
+            updateUI();
+        }, 150);
+    }
+
+    // Passive Income Loop
+    setInterval(() => {
+        money += incomePerSecond;
+        updateUI();
+    }, 1000);
+
+    function updateUI() {
+        document.getElementById('money').innerText = '$' + Math.floor(money);
+        document.getElementById('income').innerText = Math.floor(incomePerSecond);
+        document.getElementById('click-val').innerText = Math.floor(clickValue);
+        
+        const ticketBtn = document.getElementById('ticket-btn');
+        if (ticketCooldownActive) {
+            ticketBtn.disabled = true;
+            ticketBtn.innerText = `⏳ Please Wait (0.5s Cooldown)...`;
+        } else {
+            ticketBtn.disabled = false;
+            ticketBtn.innerText = `Sell Match Tickets (+$${Math.floor(clickValue)})`;
+        }
+
+        document.getElementById('team-rating').innerText = getBaseTeamRating();
+        document.getElementById('effective-rating').innerText = getEffectiveTeamRating();
+        document.getElementById('squad-count').innerText = squad.length;
+        document.getElementById('max-squad-tag').innerText = MAX_SQUAD_SIZE;
+        document.getElementById('luck-stat').innerText = getLuckMultiplier().toFixed(2) + 'x';
+
+        // Division & Promotion Render with Trophy requirement logic
+        let currentDivInfo = divisions[currentDivision];
+        let hasTrophy = userTrophies[currentDivision];
+        let divText = currentDivInfo.name;
+        
+        if (currentDivision > 1) {
+            let canPromote = money >= currentDivInfo.promoCost && getBaseTeamRating() >= currentDivInfo.promoRatingReq && hasTrophy;
+            let promoReqLabel = `Promote ($${currentDivInfo.promoCost} | Req OVR: ${currentDivInfo.promoRatingReq}${hasTrophy ? '' : ' | Needs 🏆 1st Place'})`;
+            divText += `<br><button onclick="checkPromotion()" style="font-size:11px; margin-top:4px; padding:4px;" ${ canPromote ? '' : 'disabled' }>${promoReqLabel}</button>`;
+        }
+        document.getElementById('division-tag').innerHTML = divText;
+
+        // Match Controls
+        const startBtn = document.getElementById('start-match-btn');
+        startBtn.disabled = matchActive;
+        startBtn.innerText = matchActive ? " Match In Progress..." : "▶️ Play Match";
+
+        // Pack Button
+        const packBtn = document.getElementById('pack-btn');
+        if (squad.length >= MAX_SQUAD_SIZE) {
+            packBtn.disabled = true;
+            packBtn.innerText = `🚫 Squad Full (${MAX_SQUAD_SIZE}/${MAX_SQUAD_SIZE})`;
+        } else {
+            packBtn.disabled = money < packCost;
+            packBtn.innerText = `🎁 Open Player Pack ($${packCost})`;
+        }
+
+        // Upgrades List
+        const listContainer = document.getElementById('upgrades-list');
+        listContainer.innerHTML = '';
+
+        for (let key in upgrades) {
+            let up = upgrades[key];
+            let btn = document.createElement('button');
+            btn.disabled = money < up.cost;
+            btn.onclick = () => buyUpgrade(key);
+            
+            let statDetail = up.luckBoost > 0 ? `+${up.luckBoost}x Luck` : `+$${up.income}/s | +$${up.clickBoost}/click`;
+            btn.innerHTML = `
+                ${up.name} (${up.count})<br>
+                <small>Cost: $${up.cost} | ${statDetail}</small>
+            `;
+            listContainer.appendChild(btn);
+        }
+
+        // Match Stats
+        document.getElementById('match-time').innerText = matchTime;
+        document.getElementById('score-home').innerText = homeScore;
+        document.getElementById('score-away').innerText = awayScore;
+
+        // Roster Render
+        const rosterEl = document.getElementById('roster');
+        rosterEl.innerHTML = '';
+        squad.forEach(player => {
+            const li = document.createElement('div');
+            li.className = 'roster-item';
+            let rarityClass = `rarity-${(player.rarity || 'common').toLowerCase()}`;
+            
+            let canSell = squad.length > MIN_SQUAD_SIZE;
+            li.innerHTML = `
+                <span><strong>${player.position}</strong> ${player.name} <span class="${rarityClass}">[${player.rarity || 'Common'}]</span> <span style="color:#00fff5;">OVR ${player.rating}</span></span>
+                <button class="sell-btn" ${canSell ? '' : 'disabled'} onclick="sellPlayer(${player.id})">Sell ($${player.rating * 20})</button>
+            `;
+            rosterEl.appendChild(li);
+        });
+    }
+
+    // Initial Setup
+    updateColors();
+    updateClubName();
+    recalculateStats();
+    generateRival();
+    generateLeaderboard();
+    updateUI();
+</script>
+</body>
+</html>
